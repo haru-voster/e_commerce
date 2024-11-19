@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from multiprocessing import context
 from django_daraja.mpesa import utils
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import View
@@ -113,3 +114,6 @@ def pay(request, id):
                                             stk_push_callback_url)
         return JsonResponse(transaction.response_description, safe=False)
     return render(request, 'pay.html', context)
+#added contact
+def contact_us(request):
+    return render(request, 'contact.html', context)
