@@ -103,17 +103,27 @@ def auth_success(request):
 def pay(request, id):
     product = Product.objects.get(id=id)
     context = {"product": product}
+
     if request.method == "POST":
-        amount = request.POST.get('p-price')
-        amount = int(amount)
+        amount = int(request.POST.get('p-price'))
         phone_number = request.POST.get('c-phone')
-        account_ref = "PAYMENT_1"
-        transaction_desc = "Paying for a product"
-        transaction = mpesa_client.stk_push(phone_number,amount,
-                                            account_ref, transaction_desc,
-                                            stk_push_callback_url)
-        return JsonResponse(transaction.response_description, safe=False)
+        account_ref = f"PAYMENT_{product.id}"
+        transaction_desc = f"Payment for {product.name}"
+
+        try:
+            transaction = mpesa_client.stk_push(
+                phone_number,
+                amount,
+                account_ref,
+                transaction_desc,
+                stk_push_callback_url
+            )
+            return JsonResponse({"status": transaction.response_description})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
     return render(request, 'pay.html', context)
-#added contact
+
 def contact_us(request):
     return render(request, 'contact.html', context)
+
